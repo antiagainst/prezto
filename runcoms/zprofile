@@ -18,10 +18,10 @@ fi
 #
 
 if [[ -z "$EDITOR" ]]; then
-  export EDITOR='nano'
+  export EDITOR='vim'
 fi
 if [[ -z "$VISUAL" ]]; then
-  export VISUAL='nano'
+  export VISUAL='vim'
 fi
 if [[ -z "$PAGER" ]]; then
   export PAGER='less'
@@ -39,6 +39,13 @@ fi
 # Paths
 #
 
+export GOPATH=$HOME/go
+export VULKAN_SDK=$HOME/vulkan/sdk/1.2.135.0/x86_64
+export ANDROID_SDK_ROOT=$HOME/Android/Sdk
+export ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/21.3.6528147
+export ANDROID_SDK_BUILD_TOOLS_VERSION=30.0.2
+export PYENV_ROOT=$HOME/.pyenv
+
 # Ensure path arrays do not contain duplicates.
 typeset -gU cdpath fpath mailpath path
 
@@ -49,7 +56,13 @@ typeset -gU cdpath fpath mailpath path
 
 # Set the list of directories that Zsh searches for programs.
 path=(
+  $VULKAN_SDK/bin
+  $HOME/.skim/bin
+  $HOME/.cargo/bin
+  $HOME/go/bin
+  $PYENV_ROOT/shims
   $HOME/{,s}bin(N)
+  $HOME/.local/bin
   /opt/{homebrew,local}/{,s}bin(N)
   /usr/local/{,s}bin(N)
   $path
@@ -71,3 +84,36 @@ fi
 if [[ -z "$LESSOPEN" ]] && (( $#commands[(i)lesspipe(|.sh)] )); then
   export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 fi
+
+# Color setup for ls.
+if [[ -x /usr/bin/dircolors ]]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
+
+if [[ $(uname) == "Linux" ]]; then
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+fi
+
+# Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
+setopt EXTENDED_GLOB
+
+# Case insensitive globbing.
+# setopt NO_CASE_GLOB
+
+# Sort filenames matched by a filename generation pattern numerically rather than lexicographically.
+setopt NUMERIC_GLOB_SORT
+
+# Incremental search.
+bindkey -M vicmd "/" history-incremental-search-backward
+bindkey -M vicmd "?" history-incremental-search-forward
+
+# Search based on what you typed in already.
+bindkey -M vicmd "//" history-beginning-search-backward
+bindkey -M vicmd "??" history-beginning-search-forward
+
+bindkey -M vicmd "q" push-line
+
+bindkey -M viins ' ' magic-space
+
+umask 022
