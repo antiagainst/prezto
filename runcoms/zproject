@@ -1,0 +1,58 @@
+#
+# Project related configurations
+#
+
+mlir-cmake() {
+  if (( $# < 3 ))
+  then
+    echo usage: "$1 <source-dir> <target-dir> <build-type>"
+    return 1
+  fi
+
+  SOURCE_DIR=$1; shift
+  TARGET_DIR=$1; shift
+  BUILD_TYPE=$1; shift
+
+  cmake -GNinja \
+    -S ${SOURCE_DIR} -B ${TARGET_DIR} \
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DLLVM_ENABLE_PROJECTS="llvm;mlir" \
+    -DLLVM_TARGETS_TO_BUILD="host" \
+    -DMLIR_ENABLE_BINDINGS_PYTHON=ON -DPython3_EXECUTABLE="$(which python)" \
+    -DLLVM_ENABLE_ASSERTIONS=ON \
+    -DMLIR_ENABLE_VULKAN_RUNNER=ON \
+    -DMLIR_ENABLE_SPIRV_CPU_RUNNER=ON \
+    -DLLVM_BUILD_EXAMPLES=ON "$@"
+}
+
+iree-cmake() {
+  if (( $# < 3 ))
+  then
+    echo usage: "$1 <source-dir> <target-dir> <build-type>"
+    return 1
+  fi
+
+  SOURCE_DIR=$1; shift
+  TARGET_DIR=$1; shift
+  BUILD_TYPE=$1; shift
+
+  if [[ $(uname) == "Linux" ]]; then
+    CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON -DIREE_CUDA_LIBDEVICE_PATH=$HOME/cuda/libdevice.10.bc"
+    BENCHMARK=ON
+  elif [[ $(uname) == "Darwin" ]]; then
+    CUDA_TARGET=""
+    BENCHMARK=OFF
+  fi
+
+  cmake -GNinja \
+    -S ${SOURCE_DIR} -B ${TARGET_DIR} \
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
+    -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
+    -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
+    -DIREE_ENABLE_LLD=ON ${CUDA_TARGET} "$@"
+}
