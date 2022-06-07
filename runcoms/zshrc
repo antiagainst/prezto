@@ -47,3 +47,7 @@ grcmake() { cmake -GNinja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPI
 if [[ -s "${ZDOTDIR:-$HOME}/.zproject" ]]; then
   source "${ZDOTDIR:-$HOME}/.zproject"
 fi
+
+if [[ -s "${ZDOTDIR:-$HOME}/.zcorp" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zcorp"
+fi
