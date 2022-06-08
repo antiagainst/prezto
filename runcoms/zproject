@@ -38,16 +38,16 @@ iree-cmake() {
   TARGET_DIR=$1; shift
   BUILD_TYPE=$1; shift
 
-  if [[ $(uname) == "Linux" ]]; then
+  if [[ $(command -v nvidia-smi) ]]; then
     CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON -DIREE_CUDA_LIBDEVICE_PATH=$HOME/cuda/libdevice.10.bc"
-    BENCHMARK=ON
-  elif [[ $(uname) == "Darwin" ]]; then
+  else
     CUDA_TARGET=""
-    BENCHMARK=OFF
   fi
 
-  if [[ ! $(command -v nvidia-smi) ]]; then
-    CUDA_TARGET=""
+  if [[ $(command -v iree-import-tflite) ]]; then
+    BENCHMARK=ON
+  else
+    BENCHMARK=OFF
   fi
 
   cmake -GNinja \
@@ -59,4 +59,28 @@ iree-cmake() {
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
     -DIREE_ENABLE_LLD=ON ${CUDA_TARGET} "$@"
+}
+
+iree-android-cmake() {
+  if (( $# < 4 ))
+  then
+    echo usage: "$1 <source-dir> <target-dir> <host-dir> <build-type>"
+    return 1
+  fi
+
+  SOURCE_DIR=$1; shift
+  TARGET_DIR=$1; shift
+  HOST_DIR=$1;   shift
+  BUILD_TYPE=$1; shift
+
+  cmake -GNinja \
+    -S ${SOURCE_DIR} -B ${TARGET_DIR} \
+    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
+    -DANDROID_ABI=arm64-v8a \
+    -DANDROID_PLATFORM=android-30 \
+    -DIREE_HOST_BINARY_ROOT="${HOST_DIR}/install" \
+    -DIREE_BUILD_COMPILER=OFF \
+    -DIREE_BUILD_TESTS=ON \
+    -DIREE_BUILD_SAMPLES=OFF "$@"
 }
