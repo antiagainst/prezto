@@ -39,7 +39,7 @@ iree-cmake() {
   BUILD_TYPE=$1; shift
 
   if [[ $(command -v nvidia-smi) ]]; then
-    CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON -DIREE_CUDA_LIBDEVICE_PATH=$HOME/cuda/libdevice.10.bc"
+    CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON"
   else
     CUDA_TARGET=""
   fi
