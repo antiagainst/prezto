@@ -38,6 +38,12 @@ iree-cmake() {
   TARGET_DIR=$1; shift
   BUILD_TYPE=$1; shift
 
+  if [[ $(command -v ccache) ]]; then
+    CCACHE=ON
+  else
+    CCACHE=OFF
+  fi
+
   if [[ $(command -v nvidia-smi) ]]; then
     CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON"
   else
@@ -54,6 +60,7 @@ iree-cmake() {
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
+    -DIREE_ENABLE_CCACHE=${CCACHE} -DLLVM_CCACHE_BUILD=${CCACHE} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
