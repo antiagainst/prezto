@@ -46,8 +46,10 @@ iree-cmake() {
 
   if [[ $(command -v nvidia-smi) ]]; then
     CUDA_TARGET="-DIREE_TARGET_BACKEND_CUDA=ON"
+    CUDA_DRIVER="-DIREE_HAL_DRIVER_CUDA=ON"
   else
     CUDA_TARGET=""
+    CUDA_DRIVER=""
   fi
 
   if [[ $(command -v iree-import-tflite) ]]; then
@@ -65,7 +67,7 @@ iree-cmake() {
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
-    -DIREE_ENABLE_LLD=ON ${CUDA_TARGET} "$@"
+    -DIREE_ENABLE_LLD=ON ${CUDA_TARGET} ${CUDA_DRIVER} "$@"
 }
 
 iree-android-cmake() {
