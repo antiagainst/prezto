@@ -29,12 +29,10 @@ alias lt='lsd --tree'
 # File navigation.
 export SKIM_DEFAULT_COMMAND="git ls-tree -r --name-only HEAD || rg --files || find ."
 
-alias vi='vim $(sk-tmux)'
-alias nvi='nvim $(sk-tmux)'
+alias vi='nvim $(sk-tmux)'
 
 alias o='fasd -a -e open'
-alias v='fasd -f -e vim'
-alias nv='fasd -f -e nvim'
+alias v='fasd -f -e nvim'
 
 export CTEST_OUTPUT_ON_FAILURE=1
 
