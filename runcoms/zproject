@@ -17,6 +17,7 @@ mlir-cmake() {
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
+    -DLLVM_ENABLE_LLD=ON \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DLLVM_ENABLE_PROJECTS="llvm;mlir" \
     -DLLVM_TARGETS_TO_BUILD="host" \
@@ -65,11 +66,12 @@ iree-cmake() {
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
     ${CCACHE_CC} ${CCACHE_CXX} \
+    -DIREE_ENABLE_LLD=ON -DLLVM_ENABLE_LLD=ON \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
-    -DIREE_ENABLE_LLD=ON ${CUDA_TARGET} ${CUDA_DRIVER} "$@"
+    ${CUDA_TARGET} ${CUDA_DRIVER} "$@"
 }
 
 iree-android-cmake() {
