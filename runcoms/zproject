@@ -39,9 +39,11 @@ iree-cmake() {
   BUILD_TYPE=$1; shift
 
   if [[ $(command -v ccache) ]]; then
-    CCACHE=ON
+    CCACHE_CC="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+    CCACHE_CXX="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
   else
-    CCACHE=OFF
+    CCACHE_CC=""
+    CCACHE_CXX=""
   fi
 
   if [[ $(command -v nvidia-smi) ]]; then
@@ -62,7 +64,7 @@ iree-cmake() {
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
-    -DIREE_ENABLE_CCACHE=${CCACHE} -DLLVM_CCACHE_BUILD=${CCACHE} \
+    ${CCACHE_CC} ${CCACHE_CXX} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
