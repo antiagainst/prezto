@@ -14,7 +14,7 @@ POWERLEVEL9K_MODE='nerdfont-complete'
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(os_icon root_indicator dir dir_writable)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status history)
 POWERLEVEL9K_PROMPT_ADD_NEWLINE=false
-POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
@@ -27,7 +27,8 @@ alias ll='lsd -l'
 alias lt='lsd --tree'
 
 # File navigation.
-export SKIM_DEFAULT_COMMAND="git ls-tree -r --name-only HEAD || rg --files || find ."
+#export SKIM_DEFAULT_COMMAND="git ls-tree -r --name-only HEAD || rg --files || find ."
+export SKIM_DEFAULT_COMMAND="rg --files || find ."
 
 alias vi='nvim $(sk-tmux)'
 
