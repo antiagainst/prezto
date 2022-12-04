@@ -13,11 +13,17 @@ mlir-cmake() {
   TARGET_DIR=$1; shift
   BUILD_TYPE=$1; shift
 
+  if [[ "$(uname)" == "Darwin" ]]; then
+    LLVM_LLD=""
+  else
+    LLVM_LLD="-DLLVM_ENABLE_LLD=ON"
+  fi
+
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
-    -DLLVM_ENABLE_LLD=ON \
+    ${LLVM_LLD} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DLLVM_ENABLE_PROJECTS="llvm;mlir" \
     -DLLVM_TARGETS_TO_BUILD="host" \
@@ -38,6 +44,12 @@ iree-cmake() {
   SOURCE_DIR=$1; shift
   TARGET_DIR=$1; shift
   BUILD_TYPE=$1; shift
+
+  if [[ "$(uname)" == "Darwin" ]]; then
+    IREE_LLD=""
+  else
+    IREE_LLD="-DIREE_ENABLE_LLD=ON"
+  fi
 
   if [[ $(command -v ccache) ]]; then
     CCACHE_CC="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
@@ -66,7 +78,8 @@ iree-cmake() {
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
     ${CCACHE_CC} ${CCACHE_CXX} \
-    -DIREE_ENABLE_LLD=ON -DLLVM_ENABLE_LLD=ON \
+    ${IREE_LLD} \
+    -DIREE_ENABLE_SPLIT_DWARF=ON -DIREE_ENABLE_THIN_ARCHIVES=ON \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
