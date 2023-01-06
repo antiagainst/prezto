@@ -47,8 +47,10 @@ iree-cmake() {
 
   if [[ "$(uname)" == "Darwin" ]]; then
     IREE_LLD=""
+    IREE_THIN_ARCHIVES=""
   else
     IREE_LLD="-DIREE_ENABLE_LLD=ON"
+    IREE_THIN_ARCHIVES="-DIREE_ENABLE_THIN_ARCHIVES=ON"
   fi
 
   if [[ $(command -v ccache) ]]; then
@@ -79,7 +81,7 @@ iree-cmake() {
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
     ${CCACHE_CC} ${CCACHE_CXX} \
     ${IREE_LLD} \
-    -DIREE_ENABLE_SPLIT_DWARF=ON -DIREE_ENABLE_THIN_ARCHIVES=ON \
+    -DIREE_ENABLE_SPLIT_DWARF=ON ${IREE_THIN_ARCHIVES} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
     -DIREE_BUILD_BENCHMARKS=${BENCHMARK} \
