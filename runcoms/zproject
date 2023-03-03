@@ -5,7 +5,7 @@
 mlir-cmake() {
   if (( $# < 3 ))
   then
-    echo usage: "$1 <source-dir> <target-dir> <build-type>"
+    echo "usage: $0 <source-dir> <target-dir> <build-type>"
     return 1
   fi
 
@@ -37,7 +37,7 @@ mlir-cmake() {
 iree-cmake() {
   if (( $# < 3 ))
   then
-    echo usage: "$1 <source-dir> <target-dir> <build-type>"
+    echo "usage: $0 <source-dir> <target-dir> <build-type>"
     return 1
   fi
 
@@ -92,7 +92,7 @@ iree-cmake() {
 iree-android-cmake() {
   if (( $# < 4 ))
   then
-    echo usage: "$1 <source-dir> <target-dir> <host-dir> <build-type>"
+    echo "usage: $0 <source-dir> <target-dir> <host-dir> <build-type>"
     return 1
   fi
 
