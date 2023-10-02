@@ -113,3 +113,94 @@ iree-android-cmake() {
     -DIREE_BUILD_TESTS=ON \
     -DIREE_BUILD_SAMPLES=OFF "$@"
 }
+
+iree-vulkan-compile() {
+  if (( $# < 3 )); then
+    echo "usage: $0 <arch> <input-mlir> <output-vmfb> [<debug-log>]"
+    return 1
+  fi
+
+  ARCH=$1;        shift
+  SOURCE_MLIR=$1; shift
+  OUTPUT_VMFB=$1; shift
+
+  if (( $# == 1 )); then
+    DEBUG_LOG=$1; shift
+    $PWD/tools/iree-compile \
+      --iree-hal-target-backends=vulkan \
+      --iree-vulkan-target-triple=${ARCH}-unknown-unknown \
+      --iree-stream-resource-max-allocation-size=4294967295 \
+      --iree-stream-resource-index-bits=64 \
+      --iree-vm-target-index-bits=64 \
+      "${SOURCE_MLIR}" -o "${OUTPUT_VMFB}" "$@" \
+      --mlir-print-ir-after-all &>! "${DEBUG_LOG}"
+  else
+    $PWD/tools/iree-compile \
+      --iree-hal-target-backends=vulkan \
+      --iree-vulkan-target-triple=${ARCH}-unknown-unknown \
+      --iree-stream-resource-max-allocation-size=4294967295 \
+      --iree-stream-resource-index-bits=64 \
+      --iree-vm-target-index-bits=64 \
+      "${SOURCE_MLIR}" -o "${OUTPUT_VMFB}" "$@"
+  fi
+}
+
+iree-vulkan-rdna3-compile() {
+  if (( $# < 2 )); then
+    echo "usage: $0 <input-mlir> <output-vmfb> [<debug-log>]"
+    return 1
+  fi
+  iree-vulkan-compile "rdna3" "$@"
+}
+
+iree-vulkan-ampere-compile() {
+  if (( $# < 2 )); then
+    echo "usage: $0 <input-mlir> <output-vmfb> [<debug-log>]"
+    return 1
+  fi
+  iree-vulkan-compile "ampere" "$@"
+}
+
+
+iree-rocm-compile() {
+  if (( $# < 3 )); then
+    echo "usage: $0 <chip> <input-mlir> <output-vmfb> [<debug-log>]"
+    return 1
+  fi
+
+  CHIP=$1;        shift
+  SOURCE_MLIR=$1; shift
+  OUTPUT_VMFB=$1; shift
+
+  if (( $# == 1 )); then
+    DEBUG_LOG=$1; shift
+    $PWD/tools/iree-compile \
+      --iree-hal-target-backends=rocm \
+      --iree-rocm-target-chip=${CHIP} \
+      --iree-rocm-link-bc=true \
+      --iree-rocm-bc-dir=/opt/rocm/amdgcn/bitcode \
+      --iree-stream-resource-max-allocation-size=4294967295 \
+      --iree-stream-resource-index-bits=64 \
+      --iree-vm-target-index-bits=64 \
+      "${SOURCE_MLIR}" -o "${OUTPUT_VMFB}" "$@" \
+      --mlir-print-ir-after-all &>! "${DEBUG_LOG}"
+  else
+    $PWD/tools/iree-compile \
+      --iree-hal-target-backends=rocm \
+      --iree-rocm-target-chip=${CHIP} \
+      --iree-rocm-link-bc=true \
+      --iree-rocm-bc-dir=/opt/rocm/amdgcn/bitcode \
+      --iree-stream-resource-max-allocation-size=4294967295 \
+      --iree-stream-resource-index-bits=64 \
+      --iree-vm-target-index-bits=64 \
+      "${SOURCE_MLIR}" -o "${OUTPUT_VMFB}" "$@"
+  fi
+}
+
+iree-rocm-gfx1100-compile() {
+  if (( $# < 2 )); then
+    echo "usage: $0 <input-mlir> <output-vmfb> [<debug-log>]"
+    return 1
+  fi
+  iree-rocm-compile "gfx1100" "$@"
+}
