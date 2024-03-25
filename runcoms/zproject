@@ -2,6 +2,8 @@
 # Project related configurations
 #
 
+#====== MLIR ======#
+
 mlir-cmake() {
   if (( $# < 3 ))
   then
@@ -33,6 +35,8 @@ mlir-cmake() {
     -DMLIR_ENABLE_SPIRV_CPU_RUNNER=ON \
     -DLLVM_BUILD_EXAMPLES=ON "$@"
 }
+
+#====== IREE ======#
 
 iree-cmake() {
   if (( $# < 3 ))
@@ -203,4 +207,31 @@ iree-rocm-gfx1100-compile() {
     return 1
   fi
   iree-rocm-compile "gfx1100" "$@"
+}
+
+#====== Triton ======#
+
+triton-pip-install() {
+  REPO_BASE_DIR=$(git rev-parse --show-toplevel)
+  TRITON_BUILD_WITH_CCACHE=true TRITON_BUILD_WITH_CLANG_LLD=true \
+    pip install ${REPO_BASE_DIR}/python
+}
+
+triton-print-install-version() {
+  python -c "import triton; print(triton.__version__)"
+}
+
+triton-print-mlir-in-test() {
+  REPO_BASE_DIR=$(git rev-parse --show-toplevel)
+  if (( $# != 1 && $# != 2 )); then
+    echo "usage: $0 <test-file> [<test-case>]"
+    return 1
+  fi
+  if (( $# == 1 )); then
+    MLIR_ENABLE_DUMP=1 TRITON_DISABLE_LINE_INFO=1 pytest \
+      -vs ${REPO_BASE_DIR}/python/test/unit/language/test_$1.py
+  else
+    MLIR_ENABLE_DUMP=1 TRITON_DISABLE_LINE_INFO=1 pytest \
+      -vs ${REPO_BASE_DIR}/python/test/unit/language/test_$1.py -k $2
+  fi
 }
