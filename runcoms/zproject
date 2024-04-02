@@ -221,7 +221,7 @@ triton-print-install-version() {
   python -c "import triton; print(triton.__version__)"
 }
 
-triton-print-mlir-in-test() {
+triton-print-in-test() {
   REPO_BASE_DIR=$(git rev-parse --show-toplevel)
   if (( $# != 1 && $# != 2 )); then
     echo "usage: $0 <test-file> [<test-case>]"
