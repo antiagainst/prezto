@@ -73,11 +73,11 @@ iree-cmake() {
     CUDA_DRIVER=""
   fi
 
-  if [[ $(command -v iree-import-tflite) ]]; then
-    BENCHMARK=ON
-  else
+  #if [[ $(command -v iree-import-tflite) ]]; then
+  #  BENCHMARK=ON
+  #else
     BENCHMARK=OFF
-  fi
+  #fi
 
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
@@ -234,4 +234,68 @@ triton-print-in-test() {
     MLIR_ENABLE_DUMP=1 TRITON_DISABLE_LINE_INFO=1 AMDGCN_ENABLE_DUMP=1 pytest \
       -vs ${REPO_BASE_DIR}/python/test/unit/language/test_$1.py -k $2
   fi
+}
+
+triton-configure-mlir() {
+  cmake -GNinja -S llvm -B build-mlir -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
+    -DLLVM_ENABLE_PROJECTS="llvm;mlir" \
+    -DLLVM_TARGETS_TO_BUILD="AMDGPU;NVPTX;X86;AArch64"
+}
+
+triton-cmake() {
+  cmake -GNinja -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DTRITON_CODEGEN_BACKENDS="amd;nvidia" \
+    -DLLVM_INCLUDE_DIRS=$HOME/llvm/build-mlir/include \
+    -DLLVM_LIBRARY_DIR=$HOME/llvm/build-mlir/lib \
+    -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_LINKER=lld \
+    -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
+    -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld \
+    -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+    -DTRITON_BUILD_PYTHON_MODULE=ON \
+    -DTRITON_BUILD_PROTON=ON \
+    -DCUPTI_INCLUDE_DIR=$PWD/third_party/nvidia/backend/include \
+    -DROCTRACER_INCLUDE_DIR=$PWD/third_party/amd/backend/include/ \
+    -DJSON_INCLUDE_DIR=$HOME/.triton/json/include/
+}
+
+#====== Docker ======#
+
+docker-build-dev-env() {
+  sudo docker build . -t lei-dev-env \
+    --build-arg DOCKER_USERID=$(id -u) --build-arg DOCKER_GROUPID=$(id -g)
+}
+
+docker-run-dev-env() {
+  if (( $# < 1 )); then
+    echo "usage: $0 <image> [<volumes>..]"
+    return 1
+  fi
+
+  IMAGE=$1; shift
+
+  if [[ -v SSH_AUTH_SOCK ]]; then
+    AUTH_SOCK="--volume $SSH_AUTH_SOCK:/ssh-agent --env SSH_AUTH_SOCK=/ssh-agent"
+  else
+    AUTH_SOCK=""
+  fi
+
+  touch $HOME/.zsh_history
+  mkdir -p $HOME/.cache/ccache
+  mkdir -p $HOME/.triton
+
+  sudo docker run -it --rm \
+    --network=host --device=/dev/kfd --device=/dev/dri \
+    --group-add video --group-add $(getent group render | cut -d: -f3) \
+    --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+    --shm-size=16G --ulimit memlock=-1 --ulimit stack=67108864 \
+    ${AUTH_SOCK} \
+    --mount type=bind,source=$HOME/.zsh_history,target=/home/mirror/.zsh_history \
+    -v $HOME/.cache/ccache:/ccache \
+    -v $HOME/.triton:/home/mirror/.triton \
+    "$@" ${IMAGE}
 }
