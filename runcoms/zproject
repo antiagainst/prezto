@@ -292,7 +292,8 @@ triton-cmake() {
 
 docker-build-dev-env() {
   sudo docker build . -t lei-dev-env \
-    --build-arg DOCKER_USERID=$(id -u) --build-arg DOCKER_GROUPID=$(id -g)
+    --build-arg DOCKER_USERID=$(id -u) --build-arg DOCKER_GROUPID=$(id -g) \
+    --build-arg DOCKER_RENDERID=$(getent group render | cut -d: -f3)
 }
 
 docker-run-dev-env() {
