@@ -73,12 +73,6 @@ iree-cmake() {
     CUDA_DRIVER=""
   fi
 
-  #if [[ $(command -v iree-import-tflite) ]]; then
-  #  BENCHMARK=ON
-  #else
-    BENCHMARK=OFF
-  #fi
-
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
@@ -88,7 +82,6 @@ iree-cmake() {
     -DIREE_ENABLE_SPLIT_DWARF=ON ${IREE_THIN_ARCHIVES} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DIREE_BUILD_PYTHON_BINDINGS=ON -DPython3_EXECUTABLE="$(which python)" \
-    -DIREE_BUILD_E2E_TEST_ARTIFACTS=${BENCHMARK} \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
     ${CUDA_TARGET} ${CUDA_DRIVER} "$@"
 }
