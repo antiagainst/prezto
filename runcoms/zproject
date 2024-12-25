@@ -261,6 +261,12 @@ triton-cmake() {
   BUILD_TYPE=$1; shift
   MLIR_DIR=$1;   shift
 
+  if [[ "$(uname)" == "Darwin" ]]; then
+    LINKER_FLAGS=""
+  else
+    LINKER_FLAGS="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld"
+  fi
+
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
@@ -269,10 +275,7 @@ triton-cmake() {
     -DLLVM_INCLUDE_DIRS=${MLIR_DIR}/include \
     -DLLVM_LIBRARY_DIR=${MLIR_DIR}/lib \
     -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_LINKER=lld \
-    -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld \
-    -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld \
-    -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld \
+    -DCMAKE_LINKER=lld ${LINKER_FLAGS} \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DTRITON_BUILD_PYTHON_MODULE=ON \
     -DTRITON_BUILD_PROTON=ON \
