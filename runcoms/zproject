@@ -262,10 +262,16 @@ triton-cmake() {
   MLIR_DIR=$1;   shift
 
   if [[ "$(uname)" == "Darwin" ]]; then
-    LINKER_FLAGS=""
+    LINKER_FLAGS=()
   else
-    LINKER_FLAGS="-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld"
+    LINKER_FLAGS=(
+      "-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld"
+      "-DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld"
+      "-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld"
+    )
   fi
+
+  REPO_BASE_DIR=$(git rev-parse --show-toplevel)
 
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
@@ -275,12 +281,12 @@ triton-cmake() {
     -DLLVM_INCLUDE_DIRS=${MLIR_DIR}/include \
     -DLLVM_LIBRARY_DIR=${MLIR_DIR}/lib \
     -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_LINKER=lld ${LINKER_FLAGS} \
+    -DCMAKE_LINKER=lld ${LINKER_FLAGS[@]} \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DTRITON_BUILD_PYTHON_MODULE=ON \
     -DTRITON_BUILD_PROTON=ON \
-    -DCUPTI_INCLUDE_DIR=$PWD/third_party/nvidia/backend/include \
-    -DROCTRACER_INCLUDE_DIR=$PWD/third_party/amd/backend/include/ \
+    -DCUPTI_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/nvidia/backend/include \
+    -DROCTRACER_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/amd/backend/include/ \
     -DJSON_INCLUDE_DIR=$HOME/.triton/json/include/
 }
 
