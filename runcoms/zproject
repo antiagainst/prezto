@@ -245,7 +245,7 @@ triton-configure-mlir() {
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
-    -DLLVM_ENABLE_PROJECTS="llvm;mlir" \
+    -DLLVM_ENABLE_PROJECTS="llvm;mlir;lld" \
     -DLLVM_TARGETS_TO_BUILD="AMDGPU;NVPTX;X86;AArch64"
 }
 
@@ -256,10 +256,10 @@ triton-cmake() {
     return 1
   fi
 
-  SOURCE_DIR=$1; shift
-  TARGET_DIR=$1; shift
+  SOURCE_DIR=$(realpath $1); shift
+  TARGET_DIR=$(realpath $1); shift
   BUILD_TYPE=$1; shift
-  MLIR_DIR=$1;   shift
+  MLIR_DIR=$(realpath $1); shift
 
   if [[ "$(uname)" == "Darwin" ]]; then
     LINKER_FLAGS=()
@@ -288,8 +288,8 @@ triton-cmake() {
     -DTRITON_BUILD_PYTHON_MODULE=ON \
     -DTRITON_BUILD_PROTON=ON \
     -DCUPTI_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/nvidia/backend/include \
-    -DROCTRACER_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/amd/backend/include/ \
-    -DJSON_INCLUDE_DIR=$HOME/.triton/json/include/
+    -DROCTRACER_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/amd/backend/include \
+    -DJSON_INCLUDE_DIR=$HOME/.triton/json/include
 }
 
 #====== Docker ======#
