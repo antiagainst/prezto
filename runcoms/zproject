@@ -242,6 +242,7 @@ triton-configure-mlir() {
 
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
+    -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
@@ -276,6 +277,7 @@ triton-cmake() {
   cmake -GNinja \
     -S ${SOURCE_DIR} -B ${TARGET_DIR} \
     -DTRITON_WHEEL_DIR=${TARGET_DIR}/wheel \
+    -DCMAKE_INSTALL_PREFIX=${TARGET_DIR}/install \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DTRITON_CODEGEN_BACKENDS="amd;nvidia" \
@@ -295,7 +297,14 @@ triton-cmake() {
 #====== Docker ======#
 
 docker-build-dev-env() {
-  sudo docker build . -t lei-dev-env \
+  if (( $# < 1 )); then
+    echo "usage: $0 <image>"
+    return 1
+  fi
+
+  IMAGE=$1; shift
+
+  sudo docker build . -t ${IMAGE} \
     --build-arg DOCKER_USERID=$(id -u) --build-arg DOCKER_GROUPID=$(id -g) \
     --build-arg DOCKER_RENDERID=$(getent group render | cut -d: -f3)
 }
