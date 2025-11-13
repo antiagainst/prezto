@@ -262,15 +262,15 @@ triton-cmake() {
   BUILD_TYPE=$1; shift
   MLIR_DIR=$(realpath $1); shift
 
-  if [[ "$(uname)" == "Darwin" ]]; then
-    LINKER_FLAGS=()
-  else
+  #if [[ "$(uname)" == "Darwin" ]]; then
+  #  LINKER_FLAGS=()
+  #else
     LINKER_FLAGS=(
       "-DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=lld"
       "-DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=lld"
       "-DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=lld"
     )
-  fi
+  #fi
 
   REPO_BASE_DIR=$(git rev-parse --show-toplevel)
 
