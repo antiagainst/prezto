@@ -247,7 +247,7 @@ triton-configure-mlir() {
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) \
     -DLLVM_ENABLE_PROJECTS="llvm;mlir;lld" \
-    -DLLVM_TARGETS_TO_BUILD="AMDGPU;NVPTX;X86;AArch64"
+    -DLLVM_TARGETS_TO_BUILD="AMDGPU;NVPTX;X86;AArch64" "$@"
 }
 
 triton-cmake() {
@@ -291,7 +291,7 @@ triton-cmake() {
     -DTRITON_BUILD_PROTON=ON \
     -DCUPTI_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/nvidia/backend/include \
     -DROCTRACER_INCLUDE_DIR=${REPO_BASE_DIR}/third_party/amd/backend/include \
-    -DJSON_INCLUDE_DIR=$HOME/.triton/json/include
+    -DJSON_INCLUDE_DIR=$HOME/.triton/json/include "$@"
 }
 
 #====== Docker ======#
