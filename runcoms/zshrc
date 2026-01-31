@@ -30,7 +30,7 @@ alias lt='lsd --tree'
 #export SKIM_DEFAULT_COMMAND="git ls-tree -r --name-only HEAD || rg --files || find ."
 export SKIM_DEFAULT_COMMAND="rg --files || find ."
 
-alias vi='nvim $(sk-tmux)'
+alias vi='nvim $(sk --tmux)'
 
 alias o='fasd -a -e open'
 alias v='fasd -f -e nvim'

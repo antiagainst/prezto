@@ -44,7 +44,6 @@ zstyle ':prezto:load' pmodule \
   'git' \
   'python' \
   'completion' \
-  'fasd' \
   'syntax-highlighting' \
   'history-substring-search' \
   'autosuggestions' \
